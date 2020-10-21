@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<form action="/scrape" method="post">
+    <button name="Rescrape Top Apps" type="submit">Rescrape Top Apps</button>
+</form>
+
+<head>
+  <title>Top Apps</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <h1>Top Apps</h1>
+  <!-- [START gae_python38_datastore_print_times] -->
+  {% for app in top_apps %}
+    <p><a href="http://127.0.0.1:8080/get_details/{{ app['app_id'] }}">{{ app['title'] }}</a></p>
+    <img src="{{ app['icon'] }}" width="150" height="70">
+  {% endfor %}
+  <!-- [END gae_python38_datastore_print_times] -->
+</body>
+</html>

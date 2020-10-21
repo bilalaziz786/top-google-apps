@@ -1,0 +1,6 @@
+MAX_RETRY = 2
+MAX_RETRY_FOR_SESSION = 2
+BACK_OFF_FACTOR = 0.3
+TIME_BETWEEN_RETRIES = 1000
+ERROR_CODES = (500, 502, 504)
+URL = 'https://play.google.com/store/apps/top'

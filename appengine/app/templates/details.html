@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Details</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <h1>Details</h1>
+  <!-- [START gae_python38_datastore_print_times] -->
+    <img src="{{ details['icon'] }}" width="150" height="70">
+    {% for key in details %}
+      <p>{{ key }} --> {{ details[key] }}</p>
+    {% endfor %}
+  <!-- [END gae_python38_datastore_print_times] -->
+</body>
+</html>
