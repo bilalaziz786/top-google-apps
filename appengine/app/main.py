@@ -45,24 +45,49 @@ datastore_client = datastore.Client()
 app = Flask(__name__)
 
 
+def previous_apps_in_db():
+    query = datastore_client.query(kind='apps')
+    query.order = ['title']
+    existing_apps = query.fetch()
+    previous_apps_dict = {}
+    for app in existing_apps:
+        # putting False to track visited/not visited. Initially it would all be non visited i.e., False.
+        previous_apps_dict[app['app_id']] = [app['use'], app, False]
+    return previous_apps_dict
+
+
 # [START gae_python38_datastore_store_and_fetch_times]
-def store_time(top_apps):
+def store_apps(top_apps):
     final_list = []
+    previous_apps_dict = previous_apps_in_db()
     for app in top_apps:
-        key = datastore_client.key('apps', app['app_id'])
-        entity = datastore.Entity(key=key)
-        entity.update(app)
-        final_list.append(entity)
+        if not previous_apps_dict.get(app['app_id'], [])[0]:
+            key = datastore_client.key('apps', app['app_id'])
+            entity = datastore.Entity(key=key)
+            app['use'] = True
+            previous_apps_dict[app['app_id']] = [True, app, True]
+            entity.update(app)
+            final_list.append(entity)
+        else:
+            previous_apps_dict[app['app_id']] = [True, app, True]
+    for item in previous_apps_dict:
+        if not previous_apps_dict[item][2]:
+            key = datastore_client.key('apps', item)
+            entity = datastore.Entity(key=key)
+            task = previous_apps_dict[item][1]
+            task['use'] = False
+            entity.update(task)
+            final_list.append(entity)
     datastore_client.put_multi(final_list)
 
 
-def fetch_times():
+def fetch_apps():
     query = datastore_client.query(kind='apps')
-    query.order = ['title']
+    query.add_filter('use', '=', True)
 
-    times = query.fetch()
+    apps = list(query.fetch())
 
-    return times
+    return apps
 
 
 def fetch_app_details(app_id):
@@ -83,7 +108,7 @@ def root():
     # Store the current access time in Datastore.
     # store_time(top_apps)
     # Fetch the most recent 10 access times from Datastore.
-    top_apps = fetch_times()
+    top_apps = fetch_apps()
     return render_template(
         'index.html', top_apps=top_apps)
 
@@ -92,7 +117,7 @@ def root():
 def re_scrape():
     top_apps = play_scraper.search('top', page=2)
     # Store the current access time in Datastore.
-    store_time(top_apps)
+    store_apps(top_apps)
     # Fetch the most recent 10 access times from Datastore.
     return render_template(
         'index.html', top_apps=top_apps)
