@@ -12,36 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import justext
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-import datetime
-
 from flask import Flask, render_template
-from constants import *
 import play_scraper
 
 # [START gae_python38_datastore_store_and_fetch_times]
 from google.cloud import datastore
 
+# from google.appengine.api import memcache
+
+
 datastore_client = datastore.Client()
 
-# def requests_retry_session(retries=MAX_RETRY_FOR_SESSION,
-#                            back_off_factor=BACK_OFF_FACTOR,
-#                            status_force_list=ERROR_CODES):
-#     session = requests.Session()
-#     retry = Retry(total=retries, read=retries, connect=retries,
-#                   backoff_factor=back_off_factor,
-#                   status_forcelist=status_force_list,
-#                   method_whitelist=frozenset(['GET', 'POST']))
-#     adapter = HTTPAdapter(max_retries=retry)
-#     session.mount('http://', adapter)
-#     session.mount('https://', adapter)
-#     return session
-
-
-# [END gae_python38_datastore_store_and_fetch_times]
 app = Flask(__name__)
 
 
@@ -52,7 +33,8 @@ def previous_apps_in_db():
     previous_apps_dict = {}
     for app in existing_apps:
         # putting False to track visited/not visited. Initially it would all be non visited i.e., False.
-        previous_apps_dict[app['app_id']] = [app['use'], app, False]
+        app_id = app['app_id'].decode('utf-8') if isinstance(app['app_id'], bytes) else app['app_id']
+        previous_apps_dict[app_id] = [app['use'], app, False]
     return previous_apps_dict
 
 
@@ -61,7 +43,7 @@ def store_apps(top_apps):
     final_list = []
     previous_apps_dict = previous_apps_in_db()
     for app in top_apps:
-        if not previous_apps_dict.get(app['app_id'], [])[0]:
+        if not previous_apps_dict.get(app['app_id'], [False])[0]:
             key = datastore_client.key('apps', app['app_id'])
             entity = datastore.Entity(key=key)
             app['use'] = True
@@ -79,9 +61,10 @@ def store_apps(top_apps):
             entity.update(task)
             final_list.append(entity)
     datastore_client.put_multi(final_list)
+    # memcache.flush_all()
 
 
-def fetch_apps():
+def fetch_apps_from_datastore():
     query = datastore_client.query(kind='apps')
     query.add_filter('use', '=', True)
 
@@ -98,7 +81,15 @@ def fetch_app_details(app_id):
     return details
 
 
-# [END gae_python38_datastore_store_and_fetch_times]
+def store_in_cache(apps):
+    memcache.add(key="apps", value=apps, time=3600)
+    print("Successfully stored in cache")
+
+
+def fetch_apps_from_cache():
+    print("Fetching from cache...")
+    top_apps = memcache.get("apps")
+    return top_apps
 
 
 # [START gae_python38_datastore_render_times]
@@ -108,7 +99,11 @@ def root():
     # Store the current access time in Datastore.
     # store_time(top_apps)
     # Fetch the most recent 10 access times from Datastore.
-    top_apps = fetch_apps()
+    # top_apps = fetch_apps_from_cache()
+    top_apps = None
+    if not top_apps:
+        top_apps = fetch_apps_from_datastore()
+        # store_in_cache(top_apps)
     return render_template(
         'index.html', top_apps=top_apps)
 
