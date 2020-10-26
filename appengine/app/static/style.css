@@ -2,3 +2,52 @@ body {
   font-family: "helvetica", sans-serif;
   text-align: center;
 }
+
+.header h1 {
+  background-color: lightblue;
+  padding: 20px;
+  margin-right: 90px;
+}
+
+.header img {
+  float: left;
+  width: 100px;
+  height: 76px;
+  background: #555;
+  margin: auto
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  border: 1px solid black;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  background-color: lightblue;
+  padding: 10px;
+  grid-gap: 50px 100px;
+}
+
+.grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}

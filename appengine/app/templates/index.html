@@ -1,8 +1,5 @@
 <!doctype html>
 <html>
-<form action="/scrape" method="post">
-    <button name="Rescrape Top Apps" type="submit">Rescrape Top Apps</button>
-</form>
 
 <head>
   <title>Top Apps</title>
@@ -10,12 +7,24 @@
   <link type="text/css" rel="stylesheet" href="static/style.css">
 </head>
 <body>
+<div class="header">
+  <img src="static/bluestacks.jpg" alt="logo">
+    <img style="float: right;" src="static/bluestacks.jpg" alt="logo">
   <h1>Top Apps</h1>
+  <form action="/scrape" method="post">
+    <button name="Rescrape Top Apps" type="submit">Rescrape Top Apps</button>
+</form>
+</div>
+
   <!-- [START gae_python38_datastore_print_times] -->
+<div class="grid-container">
   {% for app in top_apps %}
-    <p><a href="http://127.0.0.1:8080/get_details/{{ app.app_id }}">{{ app.title }}</a></p>
-    <img src="{{ app.icon }}" width="150" height="70">
+  <div class="grid-item">
+    <p><a href="get_details?app_id={{ app.app_id }}" target="_blank">{{ app.title }}</a></p>
+    <img src="{{app.icon}}" width="150" height="70">
+  </div>
   {% endfor %}
+  </div>
   <!-- [END gae_python38_datastore_print_times] -->
 </body>
 </html>

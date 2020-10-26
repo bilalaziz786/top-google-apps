@@ -6,14 +6,30 @@
   <script src="static/script.js}"></script>
   <link type="text/css" rel="stylesheet" href="static/style.css">
 </head>
-<body>
-
+<body style="background-color:white;">
   <h1>Details</h1>
   <!-- [START gae_python38_datastore_print_times] -->
-    <img src="{{ details.icon }}" width="150" height="70">
-    {% for key in details %}
-      <p>{{ key }} --> {{ details.key }}</p>
-    {% endfor %}
+<!--    <img src="{{details.icon}}" width="150" height="70">-->
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Full Price</th>
+        <th>Icon</th>
+        <th>Price</th>
+        <th>Score</th>
+        <th>URL</th>
+      </tr>
+      <tr>
+        <td>{{ details.title }}</td>
+        <td>{{ details.description }}</td>
+        <td>{{ details.full_price }}</td>
+        <td>{{ details.icon }}</td>
+        <td>{{ details.price }}</td>
+        <td>{{ details.score }}</td>
+        <td>{{ details.url }}</td>
+      </tr>
+  </table>
   <!-- [END gae_python38_datastore_print_times] -->
 </body>
 </html>
