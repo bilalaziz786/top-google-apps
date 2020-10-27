@@ -1,0 +1,8 @@
+queue:
+- name: top-apps-queue
+  rate: 20/s
+  bucket_size: 40
+  max_concurrent_requests: 10
+  retry_parameters:
+    task_retry_limit: 7
+    task_age_limit: 2d

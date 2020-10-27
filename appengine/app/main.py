@@ -2,11 +2,12 @@ import six
 
 reload(six)
 import webapp2
-import play_scraper
 import traceback
 
 from google.appengine.ext.webapp import template
 from requests_toolbelt.adapters import appengine
+from google.appengine.api import taskqueue
+
 from utils import *
 
 appengine.monkeypatch()
@@ -38,26 +39,16 @@ class MainPage(webapp2.RequestHandler):
             self.response.out.write(template.render('templates/index.html', top_apps_temp))
         except Exception as e:
             logger.error("Error {} occurred while rendering home page {}".format(e, traceback.print_exc()))
+            self.response.set_status(500)
             self.response.out.write("Error. Please try again after some time")
 
 
-class ReScrape(webapp2.RequestHandler):
-    def function_to_handle_requests(self):
-        try:
-            top_apps = play_scraper.search('game', page=2)
-            # Store the current access time in Datastore.
-            store_apps(top_apps)
-            top_apps_temp = {'top_apps': top_apps}
-            self.response.out.write(template.render('templates/index.html', top_apps_temp))
-        except Exception as e:
-            logger.error("Error {} occurred while scraping new apps {}".format(e, traceback.print_exc()))
-            self.response.out.write("Error. Please try again after some time")
-
-    def get(self):
-        self.function_to_handle_requests()
-
+class Enqueue(webapp2.RequestHandler):
     def post(self):
-        self.function_to_handle_requests()
+        task = taskqueue.add(
+            url='/scrape',
+            target='worker-top-apps')
+        self.response.write('Scraping Task {} enqueued, ETA {}.'.format(task.name, task.eta))
 
 
 class GetDetails(webapp2.RequestHandler):
@@ -69,11 +60,13 @@ class GetDetails(webapp2.RequestHandler):
             self.response.out.write(template.render('templates/details.html', details))
         except Exception as e:
             logger.error("Error {} occurred while getting details {}".format(e, traceback.print_exc()))
+            self.response.set_status(500)
             self.response.out.write("Error. Please try again after some time")
 
 
 app = webapp2.WSGIApplication(
-    [('/home', MainPage), ('/scrape', ReScrape), ('/get_details', GetDetails), ('/', HomePage)], debug=True)
+    [('/home', MainPage), ('/get_details', GetDetails), ('/', HomePage),
+     ('/add_to_queue', Enqueue)], debug=True)
 
 if __name__ == '__main__':
     app.run()

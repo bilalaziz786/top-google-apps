@@ -21,4 +21,19 @@ window.addEventListener('load', function () {
   console.log("Hello World!");
 
 });
+
+const button = document.querySelector('button');
+button.addEventListener('click', notify);
+
+function notify() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert('Hello, ' + this.responseText);
+      }
+    };
+  xhttp.open("POST", "/add_to_queue", false);
+  xhttp.send();
+}
+
 // [END gae_python38_log]
