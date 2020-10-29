@@ -44,11 +44,13 @@ class MainPage(webapp2.RequestHandler):
 
 
 class Enqueue(webapp2.RequestHandler):
-    def post(self):
-        task = taskqueue.add(
-            url='/scrape',
-            target='worker-top-apps')
-        self.response.write('Scraping Task {} enqueued, ETA {}.'.format(task.name, task.eta))
+    def get(self):
+        try:
+            task = taskqueue.add(url='/scrape', target='worker-top-apps', queue_name='top-apps-queue')
+            self.response.write('Scraping Task {} enqueued, ETA {}.'.format(task.name, task.eta))
+        except Exception as e:
+            logger.error("Error {} occurred while enqueing {}".format(e, traceback.print_exc()))
+            self.response.out.write("Error. Please try again after some time")
 
 
 class GetDetails(webapp2.RequestHandler):

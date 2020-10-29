@@ -32,7 +32,7 @@ function notify() {
         alert('Hello, ' + this.responseText);
       }
     };
-  xhttp.open("POST", "/add_to_queue", false);
+  xhttp.open("GET", "/add_to_queue", false);
   xhttp.send();
 }
 

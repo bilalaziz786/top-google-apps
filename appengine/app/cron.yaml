@@ -1,0 +1,8 @@
+cron:
+  - description: "fetch top apps job"
+    url: /add_to_queue
+    schedule: every 1 mins
+    target: top-apps-ggl
+    retry_parameters:
+      min_backoff_seconds: 2.5
+      max_doublings: 5

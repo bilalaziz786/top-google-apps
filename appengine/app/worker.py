@@ -5,7 +5,6 @@ from google.appengine.ext.webapp import template
 from requests_toolbelt.adapters import appengine
 import traceback
 
-
 appengine.monkeypatch()
 
 
