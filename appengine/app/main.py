@@ -50,6 +50,7 @@ class Enqueue(webapp2.RequestHandler):
             self.response.write('Scraping Task {} enqueued, ETA {}.'.format(task.name, task.eta))
         except Exception as e:
             logger.error("Error {} occurred while enqueing {}".format(e, traceback.print_exc()))
+            self.response.set_status(500)
             self.response.out.write("Error. Please try again after some time")
 
 

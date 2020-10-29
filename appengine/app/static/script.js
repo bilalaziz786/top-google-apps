@@ -31,6 +31,9 @@ function notify() {
       if (this.readyState == 4 && this.status == 200) {
         alert('Hello, ' + this.responseText);
       }
+      else if (this.status == 500){
+        alert('Hello, ' + this.responseText);
+      }
     };
   xhttp.open("GET", "/add_to_queue", false);
   xhttp.send();
